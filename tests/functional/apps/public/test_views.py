@@ -10,9 +10,9 @@ from django.test.utils import override_settings
 from erudit.test.factories import IssueFactory
 from erudit.test.factories import JournalFactory
 from erudit.test import BaseEruditTestCase
-from django.test import TestCase
 
 FIXTURE_ROOT = os.path.join(os.path.dirname(__file__), 'fixtures')
+
 
 @override_settings(DEBUG=True)
 class TestHomeView(BaseEruditTestCase):
@@ -21,6 +21,9 @@ class TestHomeView(BaseEruditTestCase):
         issue_1 = IssueFactory.create(
             journal=self.journal, date_published=dt.datetime.now() - dt.timedelta(days=1))
         issue_2 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
+        IssueFactory.create(
+            journal=self.journal, date_published=dt.datetime.now(),
+            is_published=False)
         url = reverse('public:home')
         # Run
         response = self.client.get(url)

@@ -212,7 +212,7 @@ class TestJournalDetailView(BaseEruditTestCase):
         IssueFactory.create(
             journal=journal, year=2010, date_published=dt.datetime.now() - dt.timedelta(days=1))
         issue_2 = IssueFactory.create(journal=journal, year=2010, date_published=dt.datetime.now())
-        issue_3 = IssueFactory.create(
+        IssueFactory.create(
             is_published=False,
             journal=journal, year=dt.datetime.now().year + 1,
             date_published=dt.datetime.now() + dt.timedelta(days=30))
@@ -281,7 +281,7 @@ class TestJournalAuthorsListView(BaseEruditTestCase):
     def test_only_provides_authors_for_the_given_letter(self):
         # Seetup
         issue_1 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
-        article_1 = ArticleFactory.create( issue=issue_1)
+        article_1 = ArticleFactory.create(issue=issue_1)
 
         author_1 = AuthorFactory.create(lastname='btest')
         author_2 = AuthorFactory.create(lastname='ctest1')
@@ -302,7 +302,7 @@ class TestJournalAuthorsListView(BaseEruditTestCase):
 
     def test_can_provide_contributors_of_article(self):
         issue_1 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
-        article_1 = ArticleFactory.create( issue=issue_1)
+        article_1 = ArticleFactory.create(issue=issue_1)
 
         author_1 = AuthorFactory.create(lastname='btest')
         author_2 = AuthorFactory.create(lastname='ctest1')
@@ -327,8 +327,8 @@ class TestJournalAuthorsListView(BaseEruditTestCase):
     def test_can_filter_by_article_type(self):
         # Setup
         issue_1 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
-        article_1 = ArticleFactory.create( issue=issue_1, type='article')
-        article_2 = ArticleFactory.create( issue=issue_1, type='compterendu')  # noqa
+        article_1 = ArticleFactory.create(issue=issue_1, type='article')
+        article_2 = ArticleFactory.create(issue=issue_1, type='compterendu')  # noqa
 
         author_1 = AuthorFactory.create(lastname='btest')
         article_1.authors.add(author_1)
@@ -346,7 +346,7 @@ class TestJournalAuthorsListView(BaseEruditTestCase):
 
     def test_can_filter_by_article_type_when_no_article_of_type(self):
         issue_1 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
-        article_1 = ArticleFactory.create( issue=issue_1, type='article')
+        article_1 = ArticleFactory.create(issue=issue_1, type='article')
         author_1 = AuthorFactory.create(lastname='atest')
         article_1.authors.add(author_1)
         url = reverse('public:journal:journal_authors_list', kwargs={'code': self.journal.code})
@@ -361,7 +361,7 @@ class TestJournalAuthorsListView(BaseEruditTestCase):
         """ Test that for a given selection in the authors list view, only the letters for which
         results are present are shown """
         issue_1 = IssueFactory.create(journal=self.journal, date_published=dt.datetime.now())
-        article_1 = ArticleFactory.create( issue=issue_1, type='article')
+        article_1 = ArticleFactory.create(issue=issue_1, type='article')
         author_1 = AuthorFactory.create(lastname='atest')
         article_1.authors.add(author_1)
         url = reverse('public:journal:journal_authors_list', kwargs={'code': self.journal.code})
@@ -456,6 +456,18 @@ class TestIssueDetailView(BaseEruditTestCase):
         # Setup
         issue = IssueFactory.create(
             journal=self.journal, date_published=dt.datetime.now(), localidentifier='test')
+        url = reverse('public:journal:issue_detail', args=[
+            self.journal.code, issue.volume_slug, issue.localidentifier])
+        # Run
+        response = self.client.get(url)
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_unpublished_issue_is_available(self):
+        # Setup
+        issue = IssueFactory.create(
+            journal=self.journal, date_published=dt.datetime.now(), localidentifier='test',
+            is_published=False)
         url = reverse('public:journal:issue_detail', args=[
             self.journal.code, issue.volume_slug, issue.localidentifier])
         # Run
